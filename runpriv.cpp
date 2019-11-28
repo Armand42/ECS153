@@ -55,14 +55,15 @@ int main()
 	time_t my_time = time(NULL); 
 	struct stat attr;
     stat("sniff.txt", &attr);
-	printf("%s", ctime(&my_time)); 
-	time_t t = attr.st_mtime;
-	time_t t2 = my_time;
-	if (t2 - t > 60) {
-		cout << "ERROR: Modified file\n" << t2-t;
+	
+	time_t time1 = attr.st_mtime;
+	time_t time2 = my_time;
+	if (time2 - time1 > 60) {
+		fprintf(stderr,"Last modified time: %ld\n",(time2 - time1));
+		// How to exit properly
 		//exit(0);
 	}
-    printf("Last modified time: %ld",(t2 - t));
+    
 
 
 	// Problem 6 here
