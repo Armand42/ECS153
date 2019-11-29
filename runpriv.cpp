@@ -32,7 +32,8 @@ int main()
 	else
 		fprintf(stderr, "Error: student id does not match\n");
 	
-	
+	// Ensure only student has permissions
+	chmod("sniff.txt", S_IRWXU);
 
 	// Problem 2 (Still need to validate check)
 	string password;
@@ -58,15 +59,19 @@ int main()
 		fprintf(stderr, "Error: file does not exits\n");
 
 	// Problem 4 here
+	struct stat attr;
+    stat("sniff.txt", &attr);
+
 	// Check if student has all permissions
 	// Check if specific ownership of the file
-	if (S_IRWXU) // problem here
+	if (attr.st_mode & S_IRWXU) // check to see if student owns file
 	{
 		cout << "Student owns file\n";
 	}
 	else
 	{
-		cout << "Error: student does not own file\n";
+		fprintf(stderr, "Error: student does not own file\n");
+		// Add an exit code
 	}
 	
 	// first check if student  is the owner
@@ -74,15 +79,16 @@ int main()
 
 	// else error
 
-	// Problem 5 (Fix time validation)
+	// Problem 5 
 	time_t my_time = time(NULL); 
-	struct stat attr;
-    stat("sniff.txt", &attr);
+	//struct stat attr;
+    //stat("sniff.txt", &attr);
 	
+
 	time_t time1 = attr.st_mtime;
 	time_t time2 = my_time;
 	if (time2 - time1 > 60) {
-		fprintf(stderr,"Last modified time: %ld\n",(time2 - time1));
+		fprintf(stderr,"Error: last modified time: %ld seconds\n",(time2 - time1));
 		// How to exit properly
 		//exit(0);
 	}
