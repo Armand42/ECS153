@@ -27,7 +27,7 @@ int main()
 	int userID = getuid();
 	
 	if (userID == STUDENT_UID) {
-		cout << "Problem 1 Success\n";
+		cout << "Student user verified\n";
 	}
 	else
 		fprintf(stderr, "Error: student id does not match\n");
@@ -36,10 +36,6 @@ int main()
 	chmod("sniff.txt", S_IRWXU);
 
 	// Problem 2 (Still need to validate check)
-	string password;
-	cout << "Please enter your password: ";
-	getline(cin, password);
-	cout << password << endl;
 
 	string cmd = "kinit ";
 	//cmd = cmd + password;
@@ -49,14 +45,15 @@ int main()
 	
 	// First call command to enter password (give actual error)
 	if (system(command) != 0) {
-		cout << "ERROR: password incorrect\n";
+		fprintf(stderr, "Error: password incorrect\n");
+		exit(0);
 	}
 
 	// Problem 3
 	if (access("sniff.txt", F_OK) != -1)
-		cout << "File Exists\n";
+		cout << "sniff.txt file exists\n";
 	else
-		fprintf(stderr, "Error: file does not exits\n");
+		fprintf(stderr, "Error: sniff.txt file does not exits\n");
 
 	// Problem 4 here
 	struct stat attr;
