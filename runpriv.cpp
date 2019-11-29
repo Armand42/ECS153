@@ -23,7 +23,7 @@ uid_t geteuid(void);
 int main() 
 {	
 	// Problem 1
-	open("sniff.txt", O_RDWR|O_CREAT, 0777);
+	open("sniff.txt", O_RDWR|O_CREAT, 0700);
 	int userID = getuid();
 	
 	if (userID == STUDENT_UID) {
@@ -32,11 +32,24 @@ int main()
 	else
 		fprintf(stderr, "Error: student id does not match\n");
 	
+	
+
 	// Problem 2 (Still need to validate check)
 	string password;
 	cout << "Please enter your password: ";
 	getline(cin, password);
 	cout << password << endl;
+
+	string cmd = "kinit ";
+	//cmd = cmd + password;
+	//string txt = "a";
+	const char *command = cmd.c_str();
+	//const char *x = txt.c_str();
+	
+	// First call command to enter password (give actual error)
+	if (system(command) != 0) {
+		cout << "ERROR: password incorrect\n";
+	}
 
 	// Problem 3
 	if (access("sniff.txt", F_OK) != -1)
@@ -45,7 +58,17 @@ int main()
 		fprintf(stderr, "Error: file does not exits\n");
 
 	// Problem 4 here
-
+	// Check if student has all permissions
+	// Check if specific ownership of the file
+	if (S_IRWXU) // problem here
+	{
+		cout << "Student owns file\n";
+	}
+	else
+	{
+		cout << "Error: student does not own file\n";
+	}
+	
 	// first check if student  is the owner
 		// if so then can change the permissions
 
@@ -79,16 +102,16 @@ int main()
 
 	// How can I excute the password at the same time
 
-	string cmd = "kinit ";
+	//string cmd = "kinit ";
 	//cmd = cmd + password;
 	//string txt = "a";
-	const char *command = cmd.c_str();
+	//const char *command = cmd.c_str();
 	//const char *x = txt.c_str();
 	
 	// First call command to enter password (give actual error)
-	if (system(command) != 0) {
-		cout << "ERROR: password incorrect\n";
-	}
+	//if (system(command) != 0) {
+	//	cout << "ERROR: password incorrect\n";
+	//}
 	//system(x);
 
 	//char *cmd[2] = {password, NULL};
