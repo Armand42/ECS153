@@ -17,7 +17,12 @@ using namespace std;
 uid_t getuid(void);
 uid_t geteuid(void);
 
-// Make sure to use actual errors
+// TODO
+// Add exit codes
+// Problem 6
+// README
+// PLACE IN LAB DIRECTORY!!!
+// Clean up code
 
 
 int main() 
@@ -26,25 +31,21 @@ int main()
 	open("sniff.txt", O_RDWR|O_CREAT, 0700);
 	int userID = getuid();
 	
-	if (userID == STUDENT_UID) {
+	if (userID == STUDENT_UID) 
 		cout << "Student user verified\n";
-	}
+	
 	else
 		fprintf(stderr, "Error: student id does not match\n");
 	
 	// Ensure only student has permissions
 	chmod("sniff.txt", S_IRWXU);
 
-	// Problem 2 (Still need to validate check)
-
+	// Problem 2 
 	string cmd = "kinit ";
-	//cmd = cmd + password;
-	//string txt = "a";
 	const char *command = cmd.c_str();
-	//const char *x = txt.c_str();
-	
 	// First call command to enter password (give actual error)
-	if (system(command) != 0) {
+	if (system(command) != 0) 
+	{
 		fprintf(stderr, "Error: password incorrect\n");
 		exit(0);
 	}
@@ -55,21 +56,20 @@ int main()
 	else
 		fprintf(stderr, "Error: sniff.txt file does not exits\n");
 
-	// Problem 4 here
+	// Problem 4 
+	// Create attributes for sniff.txt
 	struct stat attr;
     stat("sniff.txt", &attr);
 
 	// Check if student has all permissions
 	// Check if specific ownership of the file
 	if (attr.st_mode & S_IRWXU) // check to see if student owns file
-	{
 		cout << "Student owns file\n";
-	}
+	
 	else
-	{
 		fprintf(stderr, "Error: student does not own file\n");
 		// Add an exit code
-	}
+	
 	
 	// first check if student  is the owner
 		// if so then can change the permissions
@@ -77,14 +77,12 @@ int main()
 	// else error
 
 	// Problem 5 
+	// Calculate time difference between file creation/modification and current time
 	time_t my_time = time(NULL); 
-	//struct stat attr;
-    //stat("sniff.txt", &attr);
-	
-
 	time_t time1 = attr.st_mtime;
 	time_t time2 = my_time;
-	if (time2 - time1 > 60) {
+	if (time2 - time1 > 60) 
+	{
 		fprintf(stderr,"Error: last modified time: %ld seconds\n",(time2 - time1));
 		// How to exit properly
 		//exit(0);
@@ -93,6 +91,11 @@ int main()
 
 
 	// Problem 6 here
+
+	if (chown("sniff.txt",0,4550) == -1)
+	{
+		fprintf(stderr,"Error: could not give file to root\n");
+	}
 	
 			// check if return value of kinit is 
 			// chmod IUSR
