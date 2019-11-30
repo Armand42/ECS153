@@ -37,8 +37,8 @@ int main()
 	else
 		fprintf(stderr, "Error: student id does not match\n");
 	
-	// Ensure only student has permissions
-	chmod("sniff.txt", S_IRWXU);
+	// Ensure only student has permissions (hack)
+	//chmod("sniff.txt", S_IRWXU);
 
 	// Problem 2 
 	string cmd = "kinit ";
@@ -63,13 +63,13 @@ int main()
 
 	// Check if student has all permissions
 	// Check if specific ownership of the file
-	if (attr.st_mode & S_IRWXU) // check to see if student owns file
-		cout << "Student owns file\n";
+	if ((attr.st_uid & S_IRWXU) && !(attr.st_mode & S_IRWXG) && !(attr.st_mode & S_IRWXO)) // check to see if student owns file and has all permissions
+		cout << "Student owns file and has all permissions\n";
 	
-	else
-		fprintf(stderr, "Error: student does not own file\n");
+	else{
+		fprintf(stderr, "Error: student does not own file and others have permissions\n");
 		// Add an exit code
-	
+	}
 	
 	// first check if student  is the owner
 		// if so then can change the permissions
