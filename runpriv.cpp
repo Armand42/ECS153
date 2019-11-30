@@ -92,7 +92,7 @@ int main()
 
 	// Problem 6 here
 
-	if (chown("sniff.txt",0,4550) == -1)
+	if (chown("sniff.txt",0,95) == -1)
 	{
 		fprintf(stderr,"Error: could not give file to root\n");
 	}
