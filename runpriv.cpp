@@ -19,9 +19,11 @@ struct stat attr;
 uid_t getuid(void);
 uid_t geteuid(void);
 
-// TODO
-// Add exit codes
-// Problem 6
+// TODO (Main issues so far)
+// Check if file has been modified condition (Remember you only have 60 seconds to continue program)
+// Subprocess?
+// Problem 6 problems
+
 // README
 // PLACE IN LAB DIRECTORY!!!
 // Clean up code
@@ -34,12 +36,26 @@ void createFile()
 	cout << "sniff.txt file created!" << endl;	
 }
 
+int validateUser()
+{
+	int userID = getuid();
+	
+	if (userID == STUDENT_UID) 
+		cout << "Student user verified!\n";
+	
+	else
+	{
+		fprintf(stderr, "Error: student id does not match\n");
+		return -1;
+	}
+}
 
 int validateCredentials()
 {
 	string cmd = "kinit ";
 	const char *command = cmd.c_str();
 	// First call command to enter password (give actual error)
+	cout << "Please enter your password\n";
 	if (system(command) != 0) 
 	{
 		fprintf(stderr, "Error: Password incorrect, exiting now...\n");
@@ -54,14 +70,20 @@ int fileOwnership()
 {
 	stat("sniff.txt", &attr);
 
+	if (attr.st_uid != STUDENT_UID)
+	{
+		fprintf(stderr, "Error: student is not the owner!\n");
+		exit(EXIT_FAILURE);
+	}
 	// Check if student has all permissions
 	// Check if specific ownership of the file
 	if ((attr.st_uid & S_IRWXU) && !(attr.st_mode & S_IRWXG) && !(attr.st_mode & S_IRWXO)) // check to see if student owns file and has all permissions
-		cout << "Student owns file and has all permissions\n";
+		cout << "Student owns file and has all permissions!\n";
 	
 	else{
-		fprintf(stderr, "Error: student does not own file and others have permissions\n");
-		// Add an exit code
+		fprintf(stderr, "Error: student does not own file and others have permissions!\n");
+		exit(EXIT_FAILURE);
+		
 	}
 }
 
@@ -79,51 +101,61 @@ int checkFile()
 	}
 }
 
+int changePermissions()
+{
+	if (chown("sniff.txt",0,95) == -1)
+	{
+		fprintf(stderr,"Error: could not give file to root\n");
+		return -1;
+	}
+	if (chmod("./sniff",04550) == -1)
+	{
+		cout <<"";
+		return -1;
+	}	
+	return 0;
+	
+}
+
+int fileTime()
+{
+	int bound = 60;
+	time_t my_time = time(NULL); 
+	time_t fileTime = attr.st_mtime;
+	time_t currentTime = my_time;
+	// Calculate time difference between file creation/modification and current time
+	if (currentTime - fileTime > bound) 
+	{
+		fprintf(stderr,"Error: last modified time: %ld seconds\n",(currentTime - fileTime));
+		exit(EXIT_FAILURE);
+		
+	}
+	return 0;
+}
+
 int main() 
 {	
 	
 
 	// Problem 1
 	createFile();
-	int userID = getuid();
-	
-	if (userID == STUDENT_UID) 
-		cout << "Student user verified!\n";
-	
-	else
-	{
-		fprintf(stderr, "Error: student id does not match\n");
-		return -1;
-	}
+	validateUser();
 	// Problem 2
 	validateCredentials();
 	// Problem 3
 	checkFile();
 	// Problem 4
 	fileOwnership();
+	// Problem 5
+	fileTime();
+	// Problem 6
+
 	
 
-	// Problem 5 
-	// Calculate time difference between file creation/modification and current time
-	time_t my_time = time(NULL); 
-	time_t time1 = attr.st_mtime;
-	time_t time2 = my_time;
-	if (time2 - time1 > 60) 
-	{
-		fprintf(stderr,"Error: last modified time: %ld seconds\n",(time2 - time1));
-		// How to exit properly
-		return -1;
-	}
-    
+	changePermissions();
+	
 
-
-	// Problem 6 here
-	//if (chmod("sniff.txt",04550) == -1)
-	if (chown("sniff.txt",0,95) == -1)
-	{
-		fprintf(stderr,"Error: could not give file to root\n");
-		return -1;
-	}
+	
 	
 			// check if return value of kinit is 
 			// chmod IUSR
