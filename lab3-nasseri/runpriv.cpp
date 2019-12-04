@@ -23,11 +23,14 @@ uid_t geteuid(void);
 // Check if file has been modified condition (Remember you only have 60 seconds to continue program)
 // Subprocess?
 // Problem 6 problems
-
+// symlink
+// verify sniff is only a file - use stat and mode
 // README
 // PLACE IN LAB DIRECTORY!!!
 // Clean up code
 // Fix clock bug
+
+// FIX CONDITIONALS TO ENSURE STUDENT OWNS EVERYTHING PROPERLY!!!
 
 
 void createFile()
@@ -40,13 +43,15 @@ int validateUser()
 {
 	int userID = getuid();
 	
-	if (userID == STUDENT_UID) 
+	if (userID == STUDENT_UID)
+	{ 
 		cout << "Student user verified!\n";
-	
+		return 0;
+	}
 	else
 	{
 		fprintf(stderr, "Error: student id does not match\n");
-		return -1;
+		exit(EXIT_FAILURE);
 	}
 }
 
@@ -77,9 +82,11 @@ int fileOwnership()
 	}
 	// Check if student has all permissions
 	// Check if specific ownership of the file
-	if ((attr.st_uid & S_IRWXU) && !(attr.st_mode & S_IRWXG) && !(attr.st_mode & S_IRWXO)) // check to see if student owns file and has all permissions
+	if ((attr.st_mode & S_IXUSR) && (attr.st_mode & S_IRUSR) && (attr.st_mode & S_IWUSR) && !(attr.st_mode & S_IRWXG) && !(attr.st_mode & S_IRWXO))
+	{ // check to see if student owns file and has all permissions
 		cout << "Student owns file and has all permissions!\n";
-	
+		return 0;
+	}
 	else{
 		fprintf(stderr, "Error: student does not own file and others have permissions!\n");
 		exit(EXIT_FAILURE);
@@ -96,7 +103,7 @@ int checkFile()
 	}
 	else 
 	{
-		fprintf(stderr, "Error: sniff.txt file does not exits\n");
+		fprintf(stderr, "Error: sniff.txt file does not exist!\n");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -105,20 +112,25 @@ int changePermissions()
 {
 	if (chown("sniff.txt",0,95) == -1)
 	{
-		fprintf(stderr,"Error: could not give file to root\n");
+		fprintf(stderr,"Error: could not give file to root!\n");
 		return -1;
 	}
 	if (chmod("./sniff",04550) == -1)
 	{
-		cout <<"";
+		fprintf(stderr,"Error: could not change permissions!\n");
 		return -1;
 	}	
 	return 0;
 	
 }
-
+// Problem becuase u didnt create file in program
 int fileTime()
 {
+	//struct stat time_stat;
+	//stat("sniff.txt",&time_stat);
+	//struct tm * timeInfo = localtime(&time_stat.st_mtime);
+	//printf("File time and date: %s", asctime(timeInfo));
+
 	int bound = 60;
 	time_t my_time = time(NULL); 
 	time_t fileTime = attr.st_mtime;
@@ -138,7 +150,8 @@ int main()
 	
 
 	// Problem 1
-	createFile();
+	// Don't need this
+	//createFile();
 	validateUser();
 	// Problem 2
 	validateCredentials();
