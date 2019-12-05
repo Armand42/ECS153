@@ -9,10 +9,11 @@ To compile the program, a Makefile is included.
 Make sure you are in the lab3-nasseri directory that contains the Makefile and the program.
 
 Type in "make" into the command line and the program will compile.
+(To remove any object files generated in the current directory type in "make clean").
 
 To run the program type "./runpriv" and the program will execute.
 
-A file called "sniff.txt" will be created with restricted permissions.
+The program will check if the "sniff.txt" file exists in the current working directory.
 
 Be sure to correctly enter the password for the authentication credential
 in the UC Davis Central Authentication System or else the program will

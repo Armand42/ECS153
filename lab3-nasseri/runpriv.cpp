@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <ctime>
 #include <stdlib.h>
+#include <sys/wait.h>
 #include <fcntl.h>
 #define STUDENT_UID 608010
 
@@ -19,28 +20,9 @@ struct stat attr;
 uid_t getuid(void);
 uid_t geteuid(void);
 
-// TODO (Main issues so far)
-// Check if file has been modified condition (Remember you only have 60 seconds to continue program)
-// Subprocess?
-// Problem 6 problems
-// symlink
-// verify sniff is only a file - use stat and mode
-// README
-// PLACE IN LAB DIRECTORY!!!
-// Clean up code
-// Fix clock bug
-
-// FIX CONDITIONALS TO ENSURE STUDENT OWNS EVERYTHING PROPERLY!!!
-
-
-void createFile()
-{
-	open("sniff.txt", O_RDWR|O_CREAT, 0700);
-	cout << "sniff.txt file created!" << endl;	
-}
-
 int validateUser()
 {
+	// Verify that the user is the student
 	int userID = getuid();
 	
 	if (userID == STUDENT_UID)
@@ -57,45 +39,72 @@ int validateUser()
 
 int validateCredentials()
 {
-	string cmd = "kinit ";
-	const char *command = cmd.c_str();
-	// First call command to enter password (give actual error)
+	// Validating user credentials 		
 	cout << "Please enter your password\n";
-	if (system(command) != 0) 
-	{
-		fprintf(stderr, "Error: Password incorrect, exiting now...\n");
-		exit(EXIT_FAILURE);
-		
+	// Create process id and status
+	pid_t pid;			
+	int status;			
+	char *cmd[2]  = {"kinit",NULL}; 
+	// Create child process
+	pid = fork(); 						
+	if (pid == 0) { /* Child */			
+        	if (execvp(cmd[0], cmd) != 0)	{	
+        		perror("Error: failed to execute child process");
+        		exit(1);
+		}
 	}
-	cout << "Password Accepted into UCD CAS!\n";
+       	else if (pid > 0) { /* Parent */
+        	waitpid(-1, &status, 0);
+		if (status == 0)
+		{
+
+			cout << "Password Accepted into UCD CAS!\n";
+			return 0;
+		}
+		else
+		{
+		 fprintf(stderr, "Error: Password incorrect, exiting now...\n");
+		 exit(EXIT_FAILURE);
+		}
+	} 
+	else 
+	{
+        	perror("fork");
+		exit(1); 
+	}	
+	
 	return 0;
 }
 
 int fileOwnership()
 {
 	stat("sniff.txt", &attr);
-
+	 // Check if student owns the file
 	if (attr.st_uid != STUDENT_UID)
 	{
 		fprintf(stderr, "Error: student is not the owner!\n");
 		exit(EXIT_FAILURE);
 	}
-	// Check if student has all permissions
-	// Check if specific ownership of the file
-	if ((attr.st_mode & S_IXUSR) && (attr.st_mode & S_IRUSR) && (attr.st_mode & S_IWUSR) && !(attr.st_mode & S_IRWXG) && !(attr.st_mode & S_IRWXO))
-	{ // check to see if student owns file and has all permissions
-		cout << "Student owns file and has all permissions!\n";
-		return 0;
-	}
-	else{
-		fprintf(stderr, "Error: student does not own file and others have permissions!\n");
+	// Check if student has execute permissions
+	if (!(attr.st_mode & S_IXUSR))
+	{
+		fprintf(stderr, "Error: Student does not have execute permissions and Groups/Others may have permissions!\n");
 		exit(EXIT_FAILURE);
-		
 	}
+	// Check if anyone else has permissions
+	if ((attr.st_mode & S_IRGRP) || (attr.st_mode & S_IWGRP) || (attr.st_mode & S_IXGRP) || (attr.st_mode & S_IROTH) || (attr.st_mode & S_IWOTH) || (attr.st_mode & S_IXOTH))
+	{
+		fprintf(stderr, "Error: Group or Others have read, write, or execute permissions!\n");
+                exit(EXIT_FAILURE);
+	}
+
+
+	return 0;    
 }
 
 int checkFile()
 {
+	// Check if file exists in current working directory
 	if (access("sniff.txt", F_OK) != -1)
 	{
 		cout << "sniff.txt file exists!\n";
@@ -109,7 +118,8 @@ int checkFile()
 }
 
 int changePermissions()
-{
+{	
+	// Trying to change file permissions to root
 	if (chown("sniff.txt",0,95) == -1)
 	{
 		fprintf(stderr,"Error: could not give file to root!\n");
@@ -117,20 +127,18 @@ int changePermissions()
 	}
 	if (chmod("./sniff",04550) == -1)
 	{
-		fprintf(stderr,"Error: could not change permissions!\n");
+		perror("Error: could not change permissions!\n"); // use perror
 		return -1;
 	}	
+	else
+		cout << "Permissions were successfully changed to root!\n";
 	return 0;
 	
 }
-// Problem becuase u didnt create file in program
+
 int fileTime()
 {
-	//struct stat time_stat;
-	//stat("sniff.txt",&time_stat);
-	//struct tm * timeInfo = localtime(&time_stat.st_mtime);
-	//printf("File time and date: %s", asctime(timeInfo));
-
+	// Checking if the file has been created or modified over a minute ago
 	int bound = 60;
 	time_t my_time = time(NULL); 
 	time_t fileTime = attr.st_mtime;
@@ -147,11 +155,7 @@ int fileTime()
 
 int main() 
 {	
-	
-
 	// Problem 1
-	// Don't need this
-	//createFile();
 	validateUser();
 	// Problem 2
 	validateCredentials();
@@ -162,45 +166,7 @@ int main()
 	// Problem 5
 	fileTime();
 	// Problem 6
-
-	
-
 	changePermissions();
 	
-
-	
-	
-			// check if return value of kinit is 
-			// chmod IUSR
-			// stat for problem 4, check against macro for ownership
-			// st.mode from stat 
-			// divide by 8 for bits
-			// 655
-
-			// problem 6 use chown and chmod
-
-	// How can I excute the password at the same time
-
-	//string cmd = "kinit ";
-	//cmd = cmd + password;
-	//string txt = "a";
-	//const char *command = cmd.c_str();
-	//const char *x = txt.c_str();
-	
-	// First call command to enter password (give actual error)
-	//if (system(command) != 0) {
-	//	cout << "ERROR: password incorrect\n";
-	//}
-	//system(x);
-
-	//char *cmd[2] = {password, NULL};
-	//if (execvp(cmd[0], cmd) == STUDENT_UID){
-	//	cout << "dsfs";
-	//}
-	//cout << value;
-
-
-
-
 	return 0;
 }
