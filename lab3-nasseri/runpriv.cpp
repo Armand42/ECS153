@@ -109,6 +109,11 @@ int checkFile()
 		cout << "sniff file exists!\n";
 		return 0;
 	}
+	if (!(attr.st_mode & S_IFMT)) 
+	{
+		fprintf(stderr, "Error: sniff is not a normal file!\n");
+		exit(EXIT_FAILURE);
+	}
 	else 
 	{
 		fprintf(stderr, "Error: sniff file does not exist!\n");
