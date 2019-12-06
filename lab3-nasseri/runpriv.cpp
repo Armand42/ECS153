@@ -42,7 +42,7 @@ int validateCredentials()
 	cout << "Please enter your password\n";
 	// Create process id and status
 	pid_t pid;			
-	int status;			
+	int status;
 	char *cmd[2]  = {"kinit",NULL}; 
 	// Create child process
 	pid = fork(); 						
@@ -77,7 +77,7 @@ int validateCredentials()
 
 int fileOwnership()
 {
-	stat("sniff.txt", &attr);
+	stat("./sniff", &attr);
 	 // Check if student owns the file
 	if (attr.st_uid != STUDENT_UID)
 	{
@@ -104,14 +104,14 @@ int fileOwnership()
 int checkFile()
 {
 	// Check if file exists in current working directory
-	if (access("sniff.txt", F_OK) != -1)
+	if (access("./sniff", F_OK) != -1)
 	{
-		cout << "sniff.txt file exists!\n";
+		cout << "sniff file exists!\n";
 		return 0;
 	}
 	else 
 	{
-		fprintf(stderr, "Error: sniff.txt file does not exist!\n");
+		fprintf(stderr, "Error: sniff file does not exist!\n");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -119,7 +119,7 @@ int checkFile()
 int changePermissions()
 {	
 	// Trying to change file permissions to root
-	if (chown("sniff.txt",0,95) == -1)
+	if (chown("./sniff",0,95) == -1)
 	{
 		fprintf(stderr,"Error: could not give file to root!\n");
 		return -1;
