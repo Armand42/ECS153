@@ -103,18 +103,13 @@ int fileOwnership()
 
 int checkFile()
 {
+	stat("./sniff", &attr);
 	// Check if file exists in current working directory
 	if (access("./sniff", F_OK) != -1)
 	{
 		cout << "sniff file exists!\n";
 		return 0;
 	}
-	if (!(attr.st_mode & S_IFMT)) 
-	{
-		fprintf(stderr, "Error: sniff is not a normal file!\n");
-		exit(EXIT_FAILURE);
-	}
-	else 
 	{
 		fprintf(stderr, "Error: sniff file does not exist!\n");
 		exit(EXIT_FAILURE);
@@ -124,16 +119,17 @@ int checkFile()
 int changePermissions()
 {	
 	// Trying to change file permissions to root
-	if (chown("./sniff",0,95) == -1)
+	if (chmod("./sniff",04550) != 0)
+        {
+                perror("Error: could not change permissions!\n"); // use perror
+                return -1;
+        }
+	cout << "Chmod executed successfully!\n";
+	if (chown("./sniff",0,95) != 0)
 	{
 		fprintf(stderr,"Error: could not give file to root!\n");
 		return -1;
 	}
-	if (chmod("./sniff",04550) == -1)
-	{
-		perror("Error: could not change permissions!\n"); // use perror
-		return -1;
-	}	
 	else
 		cout << "Permissions were successfully changed to root!\n";
 	return 0;
