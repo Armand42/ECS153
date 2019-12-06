@@ -19,7 +19,7 @@ Be sure to correctly enter the password for the authentication credential
 in the UC Davis Central Authentication System or else the program will
 throw an error and terminate.
 
-The program will proceed to validate that the only the user has permissions to the file
+The program will proceed to validate that only the user has execute permissions to the file
 sniff.txt and will check for any modifications to the file.
 
 If all information prompted to the user is inputted correctly, the program
