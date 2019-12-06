@@ -2,7 +2,6 @@
 #include <string>
 #include <unistd.h>
 #include <sys/types.h>
-#include <iostream>
 #include <fstream>
 #include <stdio.h>
 #include <time.h>
